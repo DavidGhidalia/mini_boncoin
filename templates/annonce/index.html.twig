@@ -1,0 +1,34 @@
+{# index.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}Annonces{% endblock %}
+{% block body %}
+<div class="container">
+    <h1 class="my-4">Liste des annonces</h1>
+    <div class="row">
+        {% for annonce in annonces %}
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    {% if annonce.images|length > 0 %}
+                        <img src="{{ asset('uploads/images/' ~ annonce.images[0]) }}" class="card-img-top img-fluid" style="width: 10%;" alt="{{ annonce.titre }}">
+                    {% else %}
+                        <img src="{{ asset('images/default.jpg') }}" class="card-img-top img-fluid" style="width: 10%;" alt="Image par défaut">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ annonce.titre }}</h5>
+                        <p class="card-text">{{ annonce.description|length > 100 ? annonce.description|slice(0,100) ~ '...' : annonce.description }}</p>
+                        <a href="{{ path('app_annonce_show', {'id': annonce.id}) }}" class="btn btn-info">Voir</a>
+                        {% if annonce.utilisateur == app.user %}
+                            <a href="{{ path('app_annonce_edit', {'id': annonce.id}) }}" class="btn btn-warning">Modifier</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p>Aucune annonce trouvée.</p>
+        {% endfor %}
+    </div>
+    <a href="{{ path('app_annonce_new') }}" class="btn btn-success">Créer une annonce</a>
+    <a href="{{ path('home') }}" class="btn btn-secondary">🏠 Accueil</a>
+
+</div>
+{% endblock %}

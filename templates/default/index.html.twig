@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Annonces récentes</h1>
+
+    {# Formulaire de filtrage #}
+    <form method="get" action="{{ path('home') }}" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <input type="text" name="ville" class="form-control" placeholder="Ville" value="{{ app.request.query.get('ville') }}">
+            </div>
+            <div class="col-md-4">
+                <select name="categorie" class="form-control">
+                    <option value="">Toutes les catégories</option>
+                    <option value="jouets" {% if app.request.query.get('categorie') == 'jouets' %}selected{% endif %}>Jouets</option>
+                    <option value="jeux videos" {% if app.request.query.get('categorie') == 'jeux videos' %}selected{% endif %}>Jeux Vidéos</option>
+                    <option value="peluches" {% if app.request.query.get('categorie') == 'peluches' %}selected{% endif %}>Peluches</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary">Filtrer</button>
+            </div>
+        </div>
+    </form>
+
+
+    {# Bouton pour s'inscrire #}
+    {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
+        <a href="{{ path('app_register') }}" class="btn btn-success mb-4">S'inscrire</a>
+    {% endif %}
+
+    {# Bouton pour ajouter une annonce #}
+    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+        <a href="{{ path('app_annonce_new') }}" class="btn btn-primary mb-4">Ajouter une annonce</a>
+    {% endif %}
+    <a href="{{ path('app_annonce_index') }}" class="btn btn-secondary">Liste des annonces</a>
+
+
+    {# Affichage des annonces #}
+    <div class="row">
+        {% for annonce in annonces %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                {% if annonce.images|length > 0 %}
+                    <img src="{{ asset('uploads/images/' ~ annonce.images[0]) }}" class="card-img-top img-fluid" style="width: 10%;" alt="{{ annonce.titre }}">
+                {% else %}
+                    <img src="{{ asset('images/default.jpg') }}" class="card-img-top img-fluid" style="width: 10%;" alt="Image par défaut">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ annonce.titre }}</h5>
+                    <p class="card-text">{{ annonce.description }}</p>
+                    <p class="card-text"><small class="text-muted">{{ annonce.ville }} - {{ annonce.getDatePublication()|date('d/m/Y') }}</small></p>
+                    <a href="{{ path('app_annonce_show', {'id': annonce.id}) }}" class="btn btn-primary">Voir l'annonce</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p>Aucune annonce trouvée.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

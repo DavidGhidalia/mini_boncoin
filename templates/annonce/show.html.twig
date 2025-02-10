@@ -1,0 +1,40 @@
+{# show.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Annonce - {{ annonce.titre }}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1 class="my-4">Détails de l'annonce</h1>
+    
+    <div class="card">
+        {% if annonce.images|length > 0 %}
+            <img src="{{ asset('uploads/images/' ~ annonce.images[0]) }}" class="card-img-top img-fluid" style="width: 10%;" alt="{{ annonce.titre }}">
+        {% else %}
+            <img src="{{ asset('images/default.jpg') }}" class="card-img-top img-fluid" style="width: 10%;" alt="Image par défaut">
+        {% endif %}
+
+        <div class="card-body">
+            <h5 class="card-title">{{ annonce.titre }}</h5>
+            <p class="card-text">{{ annonce.description }}</p>
+            <p><strong>Catégorie :</strong> {{ annonce.categorie }}</p>
+            <p>Contact : {{ annonce.telephone ?: 'Non renseigné' }}</p>
+            <p><strong>Ville :</strong> {{ annonce.ville }}</p>
+            <p><strong>Date de publication :</strong> {{ annonce.datePublication|date('d/m/Y H:i') }}</p>
+
+            <a href="{{ path('app_annonce_index') }}" class="btn btn-secondary">Retour à la liste</a>
+            {% if annonce.utilisateur == app.user %}
+                <a href="{{ path('app_annonce_edit', {'id': annonce.id}) }}" class="btn btn-warning">Modifier</a>
+            {% endif %}
+            <a href="{{ path('home') }}" class="btn btn-secondary">🏠 Accueil</a>
+            
+            {% if annonce.utilisateur == app.user %}
+                <form method="post" action="{{ path('app_annonce_delete', {'id': annonce.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ annonce.id) }}">
+                    <button class="btn btn-danger">Supprimer</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

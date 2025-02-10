@@ -4,26 +4,42 @@ security:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        users_in_memory: { memory: null }
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: username
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
             lazy: true
-            provider: users_in_memory
+            provider: app_user_provider
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
+            # Activer l'authentification par formulaire
+            form_login:
+                login_path: app_login    # La route vers la page de connexion
+                check_path: app_login    # La route où Symfony vérifie les identifiants
+                default_target_path: home  # Redirige l'utilisateur vers cette route après une connexion réussie
+                enable_csrf: true  # Active la protection CSRF pour le formulaire de connexion
 
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
+            # Activer la déconnexion
+            logout:
+                path: app_logout  # La route pour la déconnexion
+                target: home  # Redirige l'utilisateur vers cette route après la déconnexion
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/login, roles: PUBLIC_ACCESS }  # Autorise l'accès à /login sans authentification
+        - { path: ^/annonce, roles: PUBLIC_ACCESS }  # Autorise l'accès à /login sans authentification
+        - { path: ^/register, roles: PUBLIC_ACCESS }  # Autorise l'accès à /register sans authentification
+        - { path: ^/$, roles: PUBLIC_ACCESS }  # Autorise l'accès à la page d'accueil (/) sans authentification
+        - { path: ^/about, roles: PUBLIC_ACCESS }  # Autorise l'accès à /about sans authentification
+        - { path: ^/, roles: ROLE_USER }  # Toutes les autres routes nécessitent une authentification
+        # Ajouter d'autres contrôles d'accès si nécessaire (ex: admin)
+
 
 when@test:
     security:
